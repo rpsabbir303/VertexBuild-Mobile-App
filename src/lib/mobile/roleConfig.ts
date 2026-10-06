@@ -30,7 +30,7 @@ export type MoreMenuSection = {
 export const MORE_MENU_ITEMS: Record<MoreMenuItemId, MoreMenuItem> = {
   punch: {
     id: "punch",
-    label: "Punch",
+    label: "Punch List",
     href: "/mobile-preview/tools/punch",
     roles: ["project_manager", "superintendent", "foreman", "field_worker", "field_user"],
     requiresProject: true,
@@ -86,7 +86,7 @@ export const MORE_MENU_ITEMS: Record<MoreMenuItemId, MoreMenuItem> = {
   },
   ai: {
     id: "ai",
-    label: "AI",
+    label: "Vertex AI Assistant",
     href: "/mobile-preview/tools/ai",
     roles: ["project_manager", "superintendent", "foreman", "field_worker", "field_user"],
     requiresProject: true,
@@ -130,22 +130,12 @@ export const MORE_MENU_SECTIONS: MoreMenuSection[] = [
   {
     id: "project-information",
     title: "Project Information",
-    itemIds: ["drawings", "documents", "meetings"],
-  },
-  {
-    id: "intelligence",
-    title: "Intelligence",
-    itemIds: ["ai"],
-  },
-  {
-    id: "activity",
-    title: "Activity",
-    itemIds: ["notifications"],
+    itemIds: ["drawings", "documents", "meetings", "ai"],
   },
   {
     id: "account",
     title: "Account",
-    itemIds: ["profile"],
+    itemIds: ["notifications", "profile"],
   },
 ];
 
@@ -202,12 +192,26 @@ export function slugToMoreMenuItemId(slug: string): MoreMenuItemId | null {
   return null;
 }
 
+const OPEN_TOOL_SLUGS = new Set([
+  "rfis",
+  "submittals",
+  "daily-logs",
+  "settings",
+  "offline-sync",
+  "help",
+]);
+
 export function canAccessToolSlug(
   slug: string,
   role: MockRole,
   accessibleProjectIds: string[],
   currentProjectId: string,
 ): boolean {
+  if (OPEN_TOOL_SLUGS.has(slug)) {
+    if (slug === "settings" || slug === "offline-sync" || slug === "help") return true;
+    if (accessibleProjectIds.length === 0) return false;
+    return hasProjectAccessForRole(role, currentProjectId, accessibleProjectIds);
+  }
   const itemId = slugToMoreMenuItemId(slug);
   if (!itemId) return false;
   return canAccessMoreMenuItem(itemId, role, accessibleProjectIds, currentProjectId);

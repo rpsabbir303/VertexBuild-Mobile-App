@@ -14,6 +14,7 @@ import {
 import { useMobileApp } from "@/lib/mobile/MobileAppContext";
 import { canAccessMoreMenuItem } from "@/lib/mobile/roleConfig";
 import type { MockNotification, NotificationTimeGroup } from "@/lib/mobile/types";
+import { mobilePageBg } from "@/lib/mobile/mobileUi";
 import { PermissionDeniedScreen } from "./PermissionDeniedScreen";
 import { IconBack, IconFilter, IconOverflow, IconSearch } from "../icons";
 import { NotificationBulkActionBar } from "../NotificationBulkActionBar";
@@ -191,8 +192,8 @@ export function NotificationsScreen() {
   }
 
   return (
-    <>
-      <header className="sticky top-0 z-20 border-b border-brand-line/80 bg-white/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-sm">
+    <div className={mobilePageBg}>
+      <header className="sticky top-0 z-20 border-b border-brand-line/50 bg-brand-canvas/95 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-sm">
         {notificationSelectionMode ? (
           <div className="flex items-center gap-2">
             <button
@@ -360,6 +361,6 @@ export function NotificationsScreen() {
       <NotificationProjectFilterSheet />
       <NotificationOverflowMenu />
       <NotificationBulkDeleteDialog />
-    </>
+    </div>
   );
 }

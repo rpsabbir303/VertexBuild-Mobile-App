@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { MOCK_TIME_ENTRIES } from "@/lib/mobile/mockData";
 import { useMobileApp } from "@/lib/mobile/MobileAppContext";
+import { mobileInsetCard, mobilePageBg } from "@/lib/mobile/mobileUi";
 import { DestinationHeader } from "../DestinationHeader";
+
+const panelCard = `${mobileInsetCard} p-4`;
+const rowCard = `${mobileInsetCard} px-3.5 py-3.5`;
 
 export function TimeScreen() {
   const { currentProject } = useMobileApp();
@@ -21,10 +25,10 @@ export function TimeScreen() {
   }
 
   return (
-    <>
+    <div className={mobilePageBg}>
       <DestinationHeader title="Time" subtitle="Workforce time for this project" />
       <main className="px-4 py-4">
-        <section className="rounded-mobile-lg border border-white/80 bg-white/90 p-4 shadow-soft">
+        <section className={panelCard}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-mist">
             Today&apos;s status
           </p>
@@ -53,7 +57,7 @@ export function TimeScreen() {
           </button>
         </section>
 
-        <section className="mt-4 rounded-mobile-lg border border-white/80 bg-white/90 p-4 shadow-soft">
+        <section className={`mt-4 ${panelCard}`}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-mist">
             Today&apos;s hours
           </p>
@@ -68,7 +72,7 @@ export function TimeScreen() {
             {MOCK_TIME_ENTRIES.map((entry) => (
               <li
                 key={entry.id}
-                className="flex items-center justify-between gap-3 rounded-mobile-lg border border-white/80 bg-white/90 px-3.5 py-3.5 shadow-soft"
+                className={`flex items-center justify-between gap-3 ${rowCard}`}
               >
                 <div className="min-w-0">
                   <p className="text-[14px] font-semibold text-brand-navy">{entry.dayLabel}</p>
@@ -82,6 +86,6 @@ export function TimeScreen() {
           </ul>
         </section>
       </main>
-    </>
+    </div>
   );
 }

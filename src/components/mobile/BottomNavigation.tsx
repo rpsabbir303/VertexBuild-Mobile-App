@@ -54,17 +54,19 @@ export function BottomNavigation() {
             <Link
               key={href}
               href={href}
-              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 transition-colors ${
-                active ? "text-brand-blue" : "text-brand-mist"
+              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 transition-colors ${
+                active ? "text-brand-orange" : "text-brand-mist"
               }`}
             >
-              {active ? (
-                <span
-                  className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-brand-blue"
-                  aria-hidden="true"
-                />
-              ) : null}
-              <Icon strokeWidth={active ? 2 : 1.65} />
+              <span className="relative flex h-9 w-9 items-center justify-center">
+                {active ? (
+                  <span
+                    className="absolute inset-0 rounded-full bg-brand-orange/14"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <Icon strokeWidth={active ? 2 : 1.65} className="relative z-[1]" />
+              </span>
               <span
                 className={`truncate text-[10px] leading-none tracking-[0.01em] ${
                   active ? "font-semibold" : "font-medium"

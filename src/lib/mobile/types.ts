@@ -113,16 +113,21 @@ export type QuickActionId = "new_rfi" | "upload_doc" | "daily_log" | "report_iss
 
 export type MobileTab = "home" | "logs" | "capture" | "time" | "more";
 
-export type DailyLogStatus = "draft" | "saved" | "submitted";
+export type DailyLogStatus =
+  | "draft"
+  | "saved_locally"
+  | "queued"
+  | "synced"
+  | "submitted";
 
 export type MockDailyLog = {
   id: string;
   projectId: string;
-  dayLabel: string;
-  dateLabel: string;
-  title: string;
+  /** Local calendar date, YYYY-MM-DD. One log per project and date. */
+  date: string;
   summary: string;
   status: DailyLogStatus;
+  savedLabel: string;
 };
 
 export type MockTimeEntry = {

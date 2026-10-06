@@ -6,7 +6,10 @@ import { isBiometricAvailable } from "@/lib/mobile/biometric";
 import { useMobileAuth } from "@/lib/mobile/MobileAuthContext";
 import { useMobileApp } from "@/lib/mobile/MobileAppContext";
 import { IconBack } from "../icons";
+import { mobilePageBg, mobileInsetCard } from "@/lib/mobile/mobileUi";
 import { MobileCard } from "../ui/MobileCard";
+
+const cardClass = `${mobileInsetCard} p-4`;
 
 export function ProfileScreen() {
   const { user } = useMobileApp();
@@ -38,8 +41,8 @@ export function ProfileScreen() {
   }
 
   return (
-    <>
-      <header className="flex items-center gap-2 border-b border-brand-line/80 bg-white/90 px-2 pb-3 pt-[max(12px,env(safe-area-inset-top))]">
+    <div className={mobilePageBg}>
+      <header className="flex items-center gap-2 border-b border-brand-line/50 bg-brand-canvas/95 px-2 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-sm">
         <Link
           href="/mobile-preview/more"
           className="m-press flex h-10 w-10 items-center justify-center rounded-full text-brand-navy active:bg-brand-soft"
@@ -51,7 +54,7 @@ export function ProfileScreen() {
       </header>
 
       <main className="space-y-4 px-4 py-4">
-        <MobileCard className="p-4">
+        <MobileCard className={cardClass}>
           <p className="text-[15px] font-bold text-brand-navy">
             {user.firstName} {user.lastName}
           </p>
@@ -60,7 +63,7 @@ export function ProfileScreen() {
         </MobileCard>
 
         {deviceBiometricAvailable ? (
-          <MobileCard className="p-4">
+          <MobileCard className={cardClass}>
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[15px] font-semibold text-brand-navy">Biometric Login</p>
@@ -96,11 +99,11 @@ export function ProfileScreen() {
         <button
           type="button"
           onClick={logout}
-          className="m-press w-full rounded-mobile border border-brand-line bg-white py-3 text-[15px] font-semibold text-brand-navy shadow-soft"
+          className="m-press w-full rounded-[18px] border border-brand-line/60 bg-white py-3.5 text-[15px] font-semibold text-[#E35D4A] shadow-[0_2px_12px_rgba(8,35,63,0.06)]"
         >
           Sign out
         </button>
       </main>
-    </>
+    </div>
   );
 }

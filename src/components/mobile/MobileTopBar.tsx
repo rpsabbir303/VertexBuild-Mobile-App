@@ -24,7 +24,7 @@ export function MobileTopBar({ showProject = true }: { showProject?: boolean }) 
         </div>
         <Link
           href="/mobile-preview/notifications"
-          className="m-press relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/80 text-brand-navy shadow-soft backdrop-blur-md active:scale-95"
+          className="m-press relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brand-line/60 bg-white text-brand-navy shadow-[0_2px_12px_rgba(8,35,63,0.06)] active:scale-95"
           aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
         >
           <IconBell />

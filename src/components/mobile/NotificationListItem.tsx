@@ -189,7 +189,7 @@ export function NotificationListItem({
         <div className="flex items-start gap-2">
           <p
             className={`min-w-0 flex-1 text-[15px] leading-snug tracking-[-0.01em] text-brand-navy ${
-              unread ? "font-bold" : "font-semibold"
+              unread ? "font-bold" : "font-medium"
             }`}
           >
             {notification.title}
@@ -231,8 +231,8 @@ export function NotificationListItem({
         selected
           ? "border-brand-blue/40 bg-brand-softblue/50 ring-1 ring-brand-blue/25"
           : unread
-            ? "border-brand-blue/25 bg-brand-softblue/35"
-            : "border-white/80 bg-white/90"
+            ? "border-[#B9DDF5] border-l-[3px] border-l-[#3FA7E3] bg-[#E8F4FC]"
+            : "border-[#E5ECF2] bg-[#FFFFFF]"
       }`}
     >
       {cardBody}

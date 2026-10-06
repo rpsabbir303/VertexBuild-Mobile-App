@@ -16,7 +16,10 @@ import {
   IconRfi,
   IconUpload,
 } from "../icons";
+import { mobileInsetCard, mobilePageBg } from "@/lib/mobile/mobileUi";
 import { MobileTopBar } from "../MobileTopBar";
+
+const listCard = `${mobileInsetCard} border-white/80`;
 
 const quickActions = [
   { id: "new_rfi", label: "New RFI", icon: IconRfi, href: "/mobile-preview/tools/rfis" },
@@ -62,7 +65,7 @@ export function HomeScreen() {
   const secondaryAttention = attentionForProject.slice(1);
 
   return (
-    <>
+    <div className={mobilePageBg}>
       <MobileTopBar />
       <main className="px-4 pb-6 pt-4">
         <div className="mb-4">
@@ -123,7 +126,7 @@ export function HomeScreen() {
                   <li key={item.id}>
                     <button
                       type="button"
-                      className="m-press flex w-full items-center gap-3 rounded-mobile-lg border border-white/80 bg-white/90 p-3.5 text-left shadow-soft"
+                      className={`m-press flex w-full items-center gap-3 p-3.5 text-left ${listCard}`}
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
@@ -157,7 +160,7 @@ export function HomeScreen() {
               <Link
                 key={id}
                 href={href}
-                className="m-press flex min-h-[72px] flex-col justify-between rounded-mobile-lg border border-white/80 bg-white/90 p-3.5 shadow-soft"
+                className={`m-press flex min-h-[72px] flex-col justify-between p-3.5 ${listCard}`}
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-softblue text-brand-blue">
                   <Icon />
@@ -176,7 +179,7 @@ export function HomeScreen() {
             {activityForProject.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between gap-3 rounded-mobile-lg border border-white/80 bg-white/90 px-3.5 py-3.5 shadow-soft"
+                className={`flex items-center justify-between gap-3 px-3.5 py-3.5 ${listCard}`}
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-sky" />
@@ -192,6 +195,6 @@ export function HomeScreen() {
           </ul>
         </section>
       </main>
-    </>
+    </div>
   );
 }

@@ -11,7 +11,7 @@ export function ProjectContextBar({ compact = false }: { compact?: boolean }) {
     <button
       type="button"
       onClick={openProjectSelector}
-      className="m-press flex w-full min-w-0 items-center gap-2 rounded-mobile-lg border border-white/70 bg-white/75 px-3.5 py-3 text-left shadow-soft backdrop-blur-md active:scale-[0.99]"
+      className="m-press flex w-full min-w-0 items-center gap-2 rounded-[16px] border border-brand-line/60 bg-white px-3.5 py-3 text-left shadow-[0_2px_12px_rgba(8,35,63,0.06)] active:scale-[0.99]"
       aria-label="Select project"
     >
       <div className="min-w-0 flex-1">

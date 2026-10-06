@@ -4,7 +4,10 @@ import { useState } from "react";
 import { projectSubtitle } from "@/lib/mobile/mockData";
 import { useMobileApp } from "@/lib/mobile/MobileAppContext";
 import { IconCapture, IconUpload } from "../icons";
+import { mobileInsetCard, mobilePageBg } from "@/lib/mobile/mobileUi";
 import { DestinationHeader } from "../DestinationHeader";
+
+const panelCard = `${mobileInsetCard} p-4`;
 
 const captureTypes = ["Site photo", "Progress", "Safety", "Punch evidence"] as const;
 
@@ -23,13 +26,13 @@ export function CaptureScreen() {
   }
 
   return (
-    <>
+    <div className={mobilePageBg}>
       <DestinationHeader
         title="Capture"
         subtitle="Capture field evidence for this project"
       />
       <main className="px-4 py-4">
-        <section className="rounded-mobile-lg border border-white/80 bg-white/90 p-4 shadow-soft">
+        <section className={panelCard}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-mist">
             Project context
           </p>
@@ -96,7 +99,7 @@ export function CaptureScreen() {
           <button
             type="button"
             onClick={() => mockCapture("Take Photo")}
-            className="m-press flex w-full items-center gap-3 rounded-mobile-lg border border-white/80 bg-white/90 p-4 text-left shadow-soft"
+            className={`m-press flex w-full items-center gap-3 text-left ${panelCard}`}
           >
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-softblue text-brand-blue">
               <IconCapture />
@@ -112,7 +115,7 @@ export function CaptureScreen() {
           <button
             type="button"
             onClick={() => mockCapture("Upload Photo")}
-            className="m-press flex w-full items-center gap-3 rounded-mobile-lg border border-white/80 bg-white/90 p-4 text-left shadow-soft"
+            className={`m-press flex w-full items-center gap-3 text-left ${panelCard}`}
           >
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-soft text-brand-navy">
               <IconUpload />
@@ -128,7 +131,7 @@ export function CaptureScreen() {
           <button
             type="button"
             onClick={() => mockCapture("Add Evidence")}
-            className="m-press flex w-full items-center gap-3 rounded-mobile-lg border border-white/80 bg-white/90 p-4 text-left shadow-soft"
+            className={`m-press flex w-full items-center gap-3 text-left ${panelCard}`}
           >
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-soft text-brand-navy">
               <IconCapture strokeWidth={1.6} />
@@ -148,6 +151,6 @@ export function CaptureScreen() {
           </p>
         ) : null}
       </main>
-    </>
+    </div>
   );
 }

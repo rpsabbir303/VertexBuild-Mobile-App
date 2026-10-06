@@ -559,6 +559,56 @@ export function IconEyeOff({ className, strokeWidth = 1.75 }: IconProps) {
   );
 }
 
+export function IconArrowUpRightSmall({ className, strokeWidth = 2 }: IconProps) {
+  return (
+    <svg className={iconClasses(SM, className)} width={16} height={16} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function IconSwitchVertical({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses(SM, className)} width={16} height={16} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8 7V3M8 3 5 6M8 3l3 3M16 17v4M16 21l3-3M16 21l-3-3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function IconSignOut({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses(MD, className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function IconSubmittal({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses("h-5 w-5 shrink-0", className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinejoin="round" />
+      <path d="M14 2v6h6M9 13h6M9 17h4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconSettings({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses(MD, className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth={strokeWidth} />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconOfflineSync({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses(MD, className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 3a9 9 0 0 0-7.7 4.3M4.3 7.3 2 5M12 21a9 9 0 0 0 7.7-4.3M19.7 16.7 22 19M8 12h8" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function VertexMark({ className }: { className?: string }) {
   return (
     <svg

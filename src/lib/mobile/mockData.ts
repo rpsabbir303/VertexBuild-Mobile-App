@@ -153,54 +153,6 @@ export function greetingForHour(hour: number): string {
   return "Good evening";
 }
 
-export const MOCK_DAILY_LOGS = [
-  {
-    id: "log-1",
-    projectId: "proj-lakeshore",
-    dayLabel: "Today",
-    dateLabel: "September 30, 2026",
-    title: "Daily Log",
-    summary: "Field activity, workforce and site conditions",
-    status: "draft" as const,
-  },
-  {
-    id: "log-2",
-    projectId: "proj-lakeshore",
-    dayLabel: "Yesterday",
-    dateLabel: "September 29, 2026",
-    title: "Daily Log",
-    summary: "Field activity and deliveries",
-    status: "submitted" as const,
-  },
-  {
-    id: "log-3",
-    projectId: "proj-lakeshore",
-    dayLabel: "Previous",
-    dateLabel: "September 28, 2026",
-    title: "Daily Log",
-    summary: "Field activity and site conditions",
-    status: "submitted" as const,
-  },
-  {
-    id: "log-4",
-    projectId: "proj-westbridge",
-    dayLabel: "Today",
-    dateLabel: "September 30, 2026",
-    title: "Daily Log",
-    summary: "Loading dock work and material receipts",
-    status: "saved" as const,
-  },
-  {
-    id: "log-5",
-    projectId: "proj-westbridge",
-    dayLabel: "Yesterday",
-    dateLabel: "September 29, 2026",
-    title: "Daily Log",
-    summary: "Steel erection and site access notes",
-    status: "submitted" as const,
-  },
-];
-
 export const MOCK_TIME_ENTRIES = [
   {
     id: "time-1",
