@@ -19,7 +19,14 @@ function distance(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-export function DrawingViewport({ children }: { children: ReactNode }) {
+export function DrawingViewport({
+  children,
+  navigationEnabled = true,
+}: {
+  children: ReactNode;
+  /** When false, touch pan/pinch is disabled (e.g. markup mode). Zoom buttons still work. */
+  navigationEnabled?: boolean;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
@@ -59,6 +66,7 @@ export function DrawingViewport({ children }: { children: ReactNode }) {
   }, [children, fit]);
 
   function onTouchStart(event: ReactTouchEvent<HTMLDivElement>) {
+    if (!navigationEnabled) return;
     if (event.touches.length === 2) {
       const a = { x: event.touches[0].clientX, y: event.touches[0].clientY };
       const b = { x: event.touches[1].clientX, y: event.touches[1].clientY };
@@ -75,6 +83,7 @@ export function DrawingViewport({ children }: { children: ReactNode }) {
   }
 
   function onTouchMove(event: ReactTouchEvent<HTMLDivElement>) {
+    if (!navigationEnabled) return;
     if (event.touches.length === 2 && pinchRef.current) {
       event.preventDefault();
       const a = { x: event.touches[0].clientX, y: event.touches[0].clientY };

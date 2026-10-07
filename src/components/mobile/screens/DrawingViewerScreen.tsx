@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { ConstructionSheetPreview } from "@/components/mobile/drawing/ConstructionSheetPreview";
+import { DrawingMarkupOverlay } from "@/components/mobile/drawing/DrawingMarkupOverlay";
+import { DrawingMarkupTextSheet } from "@/components/mobile/drawing/DrawingMarkupTextSheet";
+import { DrawingMarkupToolbar } from "@/components/mobile/drawing/DrawingMarkupToolbar";
+import { DrawingMarkupUnsavedSheet } from "@/components/mobile/drawing/DrawingMarkupUnsavedSheet";
+import { useDrawingMarkupSession } from "@/components/mobile/drawing/useDrawingMarkupSession";
 import { DrawingOfflineBar } from "@/components/mobile/drawing/DrawingOfflineBar";
 import { DrawingOfflineViewerBar } from "@/components/mobile/drawing/DrawingOfflineViewerBar";
 import { DrawingViewport } from "@/components/mobile/drawing/DrawingViewport";
@@ -35,6 +41,7 @@ import { IconBack, IconChevronRight } from "../icons";
 type LoadPhase = "loading" | "ready" | "error" | "missing" | "not_offline";
 
 export function DrawingViewerScreen({ drawingId }: { drawingId: string }) {
+  const router = useRouter();
   const { accessibleProjects, isOffline } = useMobileApp();
   const offlineStoreVersion = useSyncExternalStore(
     subscribeDrawingOffline,
@@ -48,6 +55,9 @@ export function DrawingViewerScreen({ drawingId }: { drawingId: string }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const [connectionNotice, setConnectionNotice] = useState(false);
   const [viewingOfflineCopy, setViewingOfflineCopy] = useState(false);
+  const [unsavedOpen, setUnsavedOpen] = useState(false);
+  const [pendingNav, setPendingNav] = useState<(() => void) | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   useEffect(() => {
     setToday(todayIso());
@@ -106,6 +116,15 @@ export function DrawingViewerScreen({ drawingId }: { drawingId: string }) {
       : drawing
         ? offlineCopyIsStale(drawingId, drawing.currentRevision)
         : false;
+
+  const markup = useDrawingMarkupSession({
+    drawingId,
+    revision: viewRevision ?? 0,
+    projectId: drawing?.projectId ?? "",
+    sheetNumber: drawing?.sheetNumber ?? "",
+    online: !isOffline,
+    enabled: phase === "ready" && viewRevision !== null && Boolean(drawing),
+  });
 
   if (!today) {
     return (
@@ -207,33 +226,91 @@ export function DrawingViewerScreen({ drawingId }: { drawingId: string }) {
   }
 
   function viewLatestRevision() {
-    setViewingOfflineCopy(false);
-    setViewRevision(liveCurrentRevision);
+    guardNavigation(() => {
+      setViewingOfflineCopy(false);
+      setViewRevision(liveCurrentRevision);
+    });
+  }
+
+  const selectedAnnotation = markup.draft.find((item) => item.id === markup.selectedId);
+
+  function guardNavigation(action: () => void) {
+    if (markup.markupMode && markup.isDirty) {
+      setPendingNav(() => action);
+      setUnsavedOpen(true);
+      return;
+    }
+    action();
+  }
+
+  function requestExitMarkup() {
+    if (markup.isDirty) {
+      setPendingNav(() => () => markup.exitMarkupMode());
+      setUnsavedOpen(true);
+      return;
+    }
+    markup.exitMarkupMode();
+  }
+
+  async function saveMarkupFromUnsaved() {
+    const ok = await markup.save();
+    if (!ok) return;
+    setUnsavedOpen(false);
+    pendingNav?.();
+    setPendingNav(null);
+  }
+
+  function discardMarkupFromUnsaved() {
+    markup.discardDraft();
+    setUnsavedOpen(false);
+    pendingNav?.();
+    setPendingNav(null);
+  }
+
+  function changeRevision(nextRevision: number) {
+    guardNavigation(() => {
+      setViewRevision(nextRevision);
+      setViewingOfflineCopy(false);
+      setInfoOpen(false);
+    });
   }
 
   return (
-    <div className="flex h-[min(100dvh,720px)] min-h-0 flex-col overflow-hidden bg-[#E8EDF2]">
+    <div className="relative flex h-[min(100dvh,720px)] min-h-0 flex-col overflow-hidden bg-[#E8EDF2]">
       <header className="shrink-0 border-b border-brand-line/45 bg-white/95 px-3 pb-2.5 pt-[max(8px,env(safe-area-inset-top))] backdrop-blur-sm">
         <div className="flex items-start gap-2">
-          <Link
-            href="/mobile-preview/tools/drawings"
+          <button
+            type="button"
+            onClick={() => guardNavigation(() => router.push("/mobile-preview/tools/drawings"))}
             className="m-press mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-brand-muted"
             aria-label="Back to drawings"
           >
             <IconBack />
-          </Link>
+          </button>
           <div className="min-w-0 flex-1">
             <p className="font-mono text-[17px] font-semibold tracking-[0.04em] text-brand-navy">{drawing.sheetNumber}</p>
             <p className="truncate text-[13px] font-medium leading-snug text-brand-navy/85">{drawing.title}</p>
             <p className="mt-1 truncate text-[11px] text-brand-muted">{project.name}</p>
           </div>
-          <button
-            type="button"
-            onClick={() => setInfoOpen(true)}
-            className="m-press shrink-0 rounded-full border border-brand-line/60 px-3 py-1.5 text-[12px] font-semibold text-brand-navy"
-          >
-            Info
-          </button>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {!markup.markupMode ? (
+              <button
+                type="button"
+                onClick={() => markup.enterMarkupMode()}
+                disabled={markup.loadPhase !== "ready"}
+                className="m-press rounded-full border border-brand-line/60 px-3 py-1.5 text-[12px] font-semibold text-brand-navy disabled:opacity-45"
+              >
+                Markup
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => setInfoOpen(true)}
+              className="m-press rounded-full border border-brand-line/60 px-3 py-1.5 text-[12px] font-semibold text-brand-navy"
+            >
+              Info
+            </button>
+          </div>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 pl-12">
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-navy">
@@ -245,8 +322,40 @@ export function DrawingViewerScreen({ drawingId }: { drawingId: string }) {
               Latest · {currentRevisionLine(drawing.currentRevision)}
             </span>
           ) : null}
+          {markup.markupMode ? (
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-blue">· Markup mode</span>
+          ) : null}
         </div>
       </header>
+
+      {markup.markupMode ? (
+        <DrawingMarkupToolbar
+          tool={markup.tool}
+          onToolChange={markup.setTool}
+          canUndo={markup.canUndo}
+          canRedo={markup.canRedo}
+          onUndo={markup.undo}
+          onRedo={markup.redo}
+          deleteEnabled={Boolean(markup.selectedId)}
+          onDelete={() => setDeleteConfirmOpen(true)}
+          onSave={() => void markup.save()}
+          saveState={markup.saveState}
+          onDone={requestExitMarkup}
+          isDirty={markup.isDirty}
+        />
+      ) : null}
+
+      {markup.markupMode && markup.draft.length === 0 ? (
+        <p className="shrink-0 border-b border-brand-line/40 bg-[#FAFCFE] px-4 py-1.5 text-[11px] text-brand-muted">
+          No markups yet · Choose a tool to annotate this sheet
+        </p>
+      ) : null}
+
+      {markup.loadPhase === "error" ? (
+        <p className="shrink-0 border-b border-brand-line/40 bg-[#FBF6F1] px-4 py-2 text-[12px] text-[#8A6232]" role="status">
+          Markup could not be loaded for this sheet.
+        </p>
+      ) : null}
 
       {showOfflineViewerBar && offlineCopy?.status === "available" ? (
         <DrawingOfflineViewerBar
@@ -271,14 +380,35 @@ export function DrawingViewerScreen({ drawingId }: { drawingId: string }) {
         />
       )}
 
-      <DrawingViewport key={`${drawing.id}-${viewRevision}-${viewingOfflineCopy ? "local" : "live"}`}>
-        <ConstructionSheetPreview
-          sheetNumber={drawing.sheetNumber}
-          title={drawing.title}
-          discipline={drawing.discipline}
-          revision={viewRevision}
-          superseded={viewRevision < drawing.currentRevision}
-        />
+      <DrawingViewport
+        key={`${drawing.id}-${viewRevision}-${viewingOfflineCopy ? "local" : "live"}`}
+        navigationEnabled={!markup.markupMode}
+      >
+        <div className="relative h-full w-full">
+          <ConstructionSheetPreview
+            sheetNumber={drawing.sheetNumber}
+            title={drawing.title}
+            discipline={drawing.discipline}
+            revision={viewRevision}
+            superseded={viewRevision < drawing.currentRevision}
+          />
+          {markup.loadPhase === "ready" ? (
+            <DrawingMarkupOverlay
+              annotations={markup.displayAnnotations}
+              selectedId={markup.markupMode ? markup.selectedId : null}
+              tool={markup.tool}
+              editable={markup.markupMode}
+              onAnnotationsChange={markup.applyDraft}
+              onSelect={markup.setSelectedId}
+              onRequestText={(point) => markup.setTextSheet({ x: point.x, y: point.y })}
+            />
+          ) : null}
+          {markup.loadPhase === "loading" ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-[#E8EDF2]/60">
+              <p className="text-[12px] font-medium text-brand-muted">Loading markup…</p>
+            </div>
+          ) : null}
+        </div>
       </DrawingViewport>
 
       {infoOpen ? (
@@ -350,11 +480,7 @@ export function DrawingViewerScreen({ drawingId }: { drawingId: string }) {
                           <button
                             type="button"
                             disabled={offlineOnly}
-                            onClick={() => {
-                              setViewRevision(rev.revision);
-                              setViewingOfflineCopy(false);
-                              setInfoOpen(false);
-                            }}
+                            onClick={() => changeRevision(rev.revision)}
                             className={`m-press flex w-full items-center justify-between py-3 text-left disabled:opacity-40 ${active ? "bg-brand-soft/30" : ""}`}
                           >
                             <span>
@@ -410,6 +536,75 @@ export function DrawingViewerScreen({ drawingId }: { drawingId: string }) {
               Close
             </button>
           </div>
+        </div>
+      ) : null}
+
+      <DrawingMarkupTextSheet
+        open={Boolean(markup.textSheet)}
+        initialText={
+          markup.textSheet?.editId
+            ? markup.draft.find((item) => item.id === markup.textSheet?.editId)?.text ?? ""
+            : ""
+        }
+        onCancel={() => markup.setTextSheet(null)}
+        onSubmit={markup.placeText}
+      />
+
+      <DrawingMarkupUnsavedSheet
+        open={unsavedOpen}
+        onContinue={() => {
+          setUnsavedOpen(false);
+          setPendingNav(null);
+        }}
+        onSave={() => void saveMarkupFromUnsaved()}
+        onDiscard={discardMarkupFromUnsaved}
+      />
+
+      {deleteConfirmOpen ? (
+        <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-brand-navy/40" role="alertdialog" aria-modal="true">
+          <button type="button" className="flex-1" aria-label="Cancel delete" onClick={() => setDeleteConfirmOpen(false)} />
+          <div className="rounded-t-[18px] bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-brand-line" />
+            <h2 className="text-[17px] font-bold text-brand-navy">Delete annotation?</h2>
+            <p className="mt-2 text-[14px] text-brand-muted">This removes the selected markup from this sheet. The drawing file is not changed.</p>
+            <div className="mt-4 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  markup.deleteSelected();
+                  setDeleteConfirmOpen(false);
+                }}
+                className="m-press w-full rounded-full bg-[#8A4B3A] py-3 text-[14px] font-semibold text-white"
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmOpen(false)}
+                className="m-press w-full rounded-full border border-brand-line/60 py-3 text-[14px] font-semibold text-brand-navy"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {markup.markupMode && selectedAnnotation?.type === "text" ? (
+        <div className="pointer-events-none absolute bottom-24 left-3 z-10">
+          <button
+            type="button"
+            onClick={() =>
+              markup.setTextSheet({
+                x: selectedAnnotation.x ?? 0,
+                y: selectedAnnotation.y ?? 0,
+                editId: selectedAnnotation.id,
+              })
+            }
+            className="pointer-events-auto m-press rounded-full border border-brand-line/60 bg-white/95 px-3 py-2 text-[12px] font-semibold text-brand-navy shadow-[0_2px_12px_rgba(8,35,63,0.08)]"
+          >
+            Edit text
+          </button>
         </div>
       ) : null}
     </div>
