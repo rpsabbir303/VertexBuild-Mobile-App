@@ -1,4 +1,7 @@
 import { AuthAccountSync } from "@/components/mobile/AuthAccountSync";
+import { BiometricSessionLockListener } from "@/components/mobile/auth/BiometricSessionLockListener";
+import { OfflineConnectivityBridge } from "@/components/mobile/auth/OfflineConnectivityBridge";
+import { SessionLifecycleListener } from "@/components/mobile/auth/SessionLifecycleListener";
 import { MobileAppProvider } from "@/lib/mobile/MobileAppContext";
 import { MobileAuthProvider } from "@/lib/mobile/MobileAuthContext";
 import { MobilePreviewFrame } from "@/components/mobile/MobilePreviewFrame";
@@ -11,7 +14,10 @@ export default function MobilePreviewLayout({
 }) {
   return (
     <MobileAuthProvider>
+      <BiometricSessionLockListener />
       <MobileAppProvider>
+        <SessionLifecycleListener />
+        <OfflineConnectivityBridge />
         <AuthAccountSync />
         <MobilePreviewFrame>
           <MobileRouteShell>{children}</MobileRouteShell>

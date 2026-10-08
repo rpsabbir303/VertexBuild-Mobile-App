@@ -14,10 +14,10 @@ export function PasswordUpdatedScreen() {
         </div>
 
         <h1 className="mt-6 text-center text-[24px] font-bold tracking-[-0.03em] text-brand-navy">
-          Password updated
+          Password reset successfully
         </h1>
         <p className="mt-3 text-center text-[15px] leading-relaxed text-brand-muted">
-          Your password has been updated successfully.
+          Sign in with your new password to continue.
         </p>
 
         <Link

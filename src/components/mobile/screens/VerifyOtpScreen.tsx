@@ -10,6 +10,7 @@ import {
 } from "@/lib/mobile/auth";
 import { MOBILE_AUTH_ROUTES } from "@/lib/mobile/authRoutes";
 import { useMobileAuth } from "@/lib/mobile/MobileAuthContext";
+import { AuthFormAlert } from "../auth/AuthFormAlert";
 import { AuthShell } from "../auth/AuthShell";
 import { OtpInput } from "../auth/OtpInput";
 import { IconBack } from "../icons";
@@ -55,11 +56,8 @@ export function VerifyOtpScreen() {
   }, [passwordRecovery?.email, router]);
 
   useEffect(() => {
-    if (otpExpired && passwordRecovery?.email) {
-      setOtpError(getVerifyOtpErrorMessage("expired"));
-      setOtp("");
-    }
-  }, [otpExpired, passwordRecovery?.email]);
+    if (otpExpired) setOtp("");
+  }, [otpExpired]);
 
   async function handleVerify(e: FormEvent) {
     e.preventDefault();
@@ -103,9 +101,7 @@ export function VerifyOtpScreen() {
     setResending(false);
 
     if (!result.ok) {
-      if (result.code !== "cooldown") {
-        setResendError(getResendCodeErrorMessage("server"));
-      }
+      setResendError(getResendCodeErrorMessage(result.code));
       return;
     }
 
@@ -164,49 +160,29 @@ export function VerifyOtpScreen() {
             />
 
             {!otpExpired ? (
-              <p
-                className="mt-3 text-[14px] font-semibold tabular-nums text-brand-navy"
-                aria-live="polite"
-              >
+              <p className="mt-3 text-[14px] font-semibold tabular-nums text-brand-navy" aria-live="polite">
                 Code expires in {formatTimer(otpExpiryRemainingSec)}
               </p>
             ) : (
-              <p
-                className="mt-3 text-[14px] font-semibold text-status-danger"
-                role="status"
-                aria-live="polite"
-              >
-                Code expires in 00:00
+              <p className="mt-3 text-[14px] font-semibold text-status-danger" role="status" aria-live="polite">
+                {getVerifyOtpErrorMessage("expired")}
               </p>
             )}
 
-            {otpError ? (
+            {otpError && !otpExpired ? (
               <p className="mt-2 text-[13px] font-medium text-status-danger" role="alert">
                 {otpError}
               </p>
-            ) : null}
-
-            {otpExpired ? (
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={!canResend}
-                className="m-press mt-3 text-[14px] font-semibold text-brand-blue disabled:opacity-45"
-              >
-                {resending ? "Sending..." : "Resend code"}
-              </button>
             ) : null}
           </div>
 
           <button
             type="submit"
-            disabled={verifying || otpExpired}
-            aria-disabled={verifying || !otpComplete || otpExpired}
-            className={`m-press w-full rounded-mobile bg-brand-blue py-3.5 text-[16px] font-semibold text-white shadow-soft disabled:opacity-60 ${
-              (!otpComplete || otpExpired) && !verifying ? "opacity-60" : ""
-            }`}
+            disabled={verifying || otpExpired || !otpComplete}
+            aria-busy={verifying}
+            className="m-press w-full rounded-mobile bg-brand-blue py-3.5 text-[16px] font-semibold text-white shadow-soft disabled:opacity-60"
           >
-            {verifying ? "Verifying..." : "Verify code"}
+            {verifying ? "Verifying…" : "Verify code"}
           </button>
         </form>
 
@@ -223,13 +199,13 @@ export function VerifyOtpScreen() {
               disabled={!canResend}
               className="m-press mt-1 text-[14px] font-semibold text-brand-blue disabled:opacity-45"
             >
-              {resending ? "Sending..." : "Resend code"}
+              {resending ? "Sending…" : "Resend code"}
             </button>
           )}
           {resendError ? (
-            <p className="mt-2 text-[13px] font-medium text-status-danger" role="alert">
-              {resendError}
-            </p>
+            <div className="mt-2">
+              <AuthFormAlert>{resendError}</AuthFormAlert>
+            </div>
           ) : null}
         </div>
 

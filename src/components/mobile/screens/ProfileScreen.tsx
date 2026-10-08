@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { isBiometricAvailable } from "@/lib/mobile/biometric";
+import { MOBILE_AUTH_ROUTES } from "@/lib/mobile/authRoutes";
 import { useMobileAuth } from "@/lib/mobile/MobileAuthContext";
+import { LogoutConfirmSheet } from "../auth/LogoutConfirmSheet";
 import { useMobileApp } from "@/lib/mobile/MobileAppContext";
 import { IconBack } from "../icons";
 import { mobilePageBg, mobileInsetCard } from "@/lib/mobile/mobileUi";
@@ -12,17 +15,20 @@ import { MobileCard } from "../ui/MobileCard";
 const cardClass = `${mobileInsetCard} p-4`;
 
 export function ProfileScreen() {
+  const router = useRouter();
   const { user } = useMobileApp();
   const {
     biometricLoginEnabled,
     enableBiometricLogin,
     disableBiometricLogin,
     logout,
+    logoutLoading,
     biometricEnableLoading,
   } = useMobileAuth();
 
   const [deviceBiometricAvailable, setDeviceBiometricAvailable] = useState(false);
   const [toggleError, setToggleError] = useState<string | null>(null);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   useEffect(() => {
     void isBiometricAvailable().then(setDeviceBiometricAvailable);
@@ -36,7 +42,7 @@ export function ProfileScreen() {
     }
     const result = await enableBiometricLogin();
     if (!result.ok && result.code !== "cancelled") {
-      setToggleError("Could not enable biometric login.");
+      setToggleError("Could not enable biometric unlock.");
     }
   }
 
@@ -66,9 +72,11 @@ export function ProfileScreen() {
           <MobileCard className={cardClass}>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-[15px] font-semibold text-brand-navy">Biometric Login</p>
+                <p className="text-[15px] font-semibold text-brand-navy">Biometric unlock</p>
                 <p className="mt-1 text-[13px] text-brand-muted">
-                  {biometricLoginEnabled ? "Enabled" : "Disabled"}
+                  {biometricLoginEnabled
+                    ? "Locks your local session when the app is backgrounded"
+                    : "Off — sign in with password only when returning"}
                 </p>
               </div>
               <button
@@ -98,12 +106,26 @@ export function ProfileScreen() {
 
         <button
           type="button"
-          onClick={logout}
+          onClick={() => setLogoutConfirmOpen(true)}
           className="m-press w-full rounded-[18px] border border-brand-line/60 bg-white py-3.5 text-[15px] font-semibold text-[#E35D4A] shadow-[0_2px_12px_rgba(8,35,63,0.06)]"
         >
           Sign out
         </button>
       </main>
+
+      <LogoutConfirmSheet
+        open={logoutConfirmOpen}
+        loading={logoutLoading}
+        onCancel={() => setLogoutConfirmOpen(false)}
+        onConfirm={async () => {
+          const result = await logout();
+          setLogoutConfirmOpen(false);
+          const params = new URLSearchParams({ signedOut: "1" });
+          if (result.offline) params.set("offline", "1");
+          if (result.remotePending) params.set("remotePending", "1");
+          router.replace(`${MOBILE_AUTH_ROUTES.login}?${params.toString()}`);
+        }}
+      />
     </div>
   );
 }

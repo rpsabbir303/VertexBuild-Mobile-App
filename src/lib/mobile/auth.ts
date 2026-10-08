@@ -104,6 +104,86 @@ export const PROVISIONED_ACCOUNTS: AuthAccount[] = [
     initials: "IU",
     company: "Summit Construction Group",
   },
+  {
+    email: "session.expired@summitconstruction.com",
+    password: "Vertex2024!",
+    status: "active",
+    role: "project_manager",
+    firstName: "Session",
+    lastName: "Expired",
+    initials: "SE",
+    company: "Summit Construction Group",
+  },
+  {
+    email: "session.revoked@summitconstruction.com",
+    password: "Vertex2024!",
+    status: "active",
+    role: "project_manager",
+    firstName: "Session",
+    lastName: "Revoked",
+    initials: "SR",
+    company: "Summit Construction Group",
+  },
+  {
+    email: "session.suspended@summitconstruction.com",
+    password: "Vertex2024!",
+    status: "active",
+    role: "project_manager",
+    firstName: "Session",
+    lastName: "Suspended",
+    initials: "SS",
+    company: "Summit Construction Group",
+  },
+  {
+    email: "offline.expired@summitconstruction.com",
+    password: "Vertex2024!",
+    status: "active",
+    role: "project_manager",
+    firstName: "Offline",
+    lastName: "Expired",
+    initials: "OE",
+    company: "Summit Construction Group",
+  },
+  {
+    email: "sso.noproject@summitconstruction.com",
+    password: "Vertex2024!",
+    status: "active",
+    role: "project_manager",
+    firstName: "SSO",
+    lastName: "NoProject",
+    initials: "SN",
+    company: "Summit Construction Group",
+  },
+  {
+    email: "sso.nomember@summitconstruction.com",
+    password: "Vertex2024!",
+    status: "active",
+    role: "project_manager",
+    firstName: "SSO",
+    lastName: "NoMember",
+    initials: "SM",
+    company: "Summit Construction Group",
+  },
+  {
+    email: "offline.none@summitconstruction.com",
+    password: "Vertex2024!",
+    status: "active",
+    role: "project_manager",
+    firstName: "Offline",
+    lastName: "None",
+    initials: "ON",
+    company: "Summit Construction Group",
+  },
+  {
+    email: "session.permission@summitconstruction.com",
+    password: "Vertex2024!",
+    status: "active",
+    role: "project_manager",
+    firstName: "Session",
+    lastName: "Permission",
+    initials: "SP",
+    company: "Summit Construction Group",
+  },
 ];
 
 export type LoginErrorCode =
@@ -118,7 +198,7 @@ export type LoginResult =
   | { ok: true; account: AuthAccount }
   | { ok: false; code: LoginErrorCode };
 
-export type SendCodeErrorCode = "email_required" | "email_invalid" | "server";
+export type SendCodeErrorCode = "email_required" | "email_invalid" | "server" | "network";
 
 export type VerifyOtpErrorCode =
   | "incomplete"
@@ -306,6 +386,8 @@ export function getSendCodeErrorMessage(code: SendCodeErrorCode): string {
       return "Email is required.";
     case "email_invalid":
       return "Enter a valid email address.";
+    case "network":
+      return "We couldn't reach the server. Check your connection and try again.";
     case "server":
       return "Something went wrong. Please try again.";
     default:
@@ -330,6 +412,8 @@ export function getVerifyOtpErrorMessage(code: VerifyOtpErrorCode): string {
 
 export function getResendCodeErrorMessage(code: ResendCodeErrorCode): string {
   switch (code) {
+    case "cooldown":
+      return "Please wait before requesting another code.";
     case "server":
       return "Couldn't resend the code. Please try again.";
     default:
@@ -408,7 +492,7 @@ export async function mockSendVerificationCode(email: string): Promise<
   const normalized = normalizeEmail(email);
   if (!normalized) return { ok: false, code: "email_required" };
   if (!isValidWorkEmail(normalized)) return { ok: false, code: "email_invalid" };
-  if (normalized === NETWORK_FAIL_EMAIL) return { ok: false, code: "server" };
+  if (normalized === NETWORK_FAIL_EMAIL) return { ok: false, code: "network" };
 
   const recovery = buildOtpChallenge(normalized);
   writePasswordRecovery(recovery);
@@ -494,5 +578,17 @@ export type StoredAuthSession = {
   email: string;
   role: MockRole;
   token: string;
+  /** Mock refresh handle when the backend supports token refresh (prototype). */
+  refreshToken?: string;
   issuedAt: number;
+  /** False while MFA is pending after primary sign-in. */
+  mfaVerified: boolean;
+};
+
+export type MfaNextStep = "none" | "enroll" | "challenge";
+
+export type LoginSuccessResult = {
+  ok: true;
+  account: AuthAccount;
+  mfaNext: MfaNextStep;
 };

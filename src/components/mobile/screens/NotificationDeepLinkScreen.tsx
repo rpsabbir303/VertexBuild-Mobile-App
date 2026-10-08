@@ -79,6 +79,7 @@ export function NotificationDeepLinkScreen({ notificationId }: { notificationId:
           <button
             type="button"
             onClick={() => {
+              if (typeof navigator !== "undefined" && !navigator.onLine) return;
               setIsOffline(false);
               router.refresh();
             }}

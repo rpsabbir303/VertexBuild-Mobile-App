@@ -1,5 +1,5 @@
-import { BiometricLoginScreen } from "@/components/mobile/screens/BiometricLoginScreen";
+import { BiometricUnlockScreen } from "@/components/mobile/screens/BiometricUnlockScreen";
 
 export default function MobileBiometricLoginPage() {
-  return <BiometricLoginScreen />;
+  return <BiometricUnlockScreen />;
 }

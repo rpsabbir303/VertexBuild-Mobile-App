@@ -26,7 +26,7 @@ export function BiometricEnablePrompt() {
         dismissBiometricEnablePrompt();
         return;
       }
-      setError("Could not enable biometric login. Please try again.");
+      setError("Could not enable biometric unlock. Please try again.");
     }
   }
 
@@ -39,10 +39,11 @@ export function BiometricEnablePrompt() {
         aria-labelledby="biometric-enable-title"
       >
         <h2 id="biometric-enable-title" className="text-[18px] font-bold text-brand-navy">
-          Enable biometric login?
+          Use biometrics to unlock VertexBuild?
         </h2>
         <p className="mt-2 text-[14px] leading-relaxed text-brand-muted">
-          Use your device&apos;s biometrics for faster and secure sign-in next time.
+          Protect your local session when the app is locked. This does not replace account sign-in
+          — your device controls biometric security through the operating system.
         </p>
         {error ? (
           <p className="mt-3 text-[13px] font-medium text-status-danger" role="alert">

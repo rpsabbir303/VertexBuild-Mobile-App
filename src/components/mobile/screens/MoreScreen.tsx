@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { MOBILE_AUTH_ROUTES } from "@/lib/mobile/authRoutes";
+import { LogoutConfirmSheet } from "../auth/LogoutConfirmSheet";
 import {
   MORE_ACCOUNT_EXTRAS,
   MORE_MENU_ROW_META,
@@ -103,9 +106,11 @@ function AccountExtraRow({ extra }: { extra: MoreAccountExtra }) {
 }
 
 export function MoreScreen() {
+  const router = useRouter();
   const { user, currentProject, accessibleProjects, unreadCount, openProjectSelector } =
     useMobileApp();
-  const { logout } = useMobileAuth();
+  const { logout, logoutLoading } = useMobileAuth();
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   const accessibleProjectIds = useMemo(
     () => accessibleProjects.map((p) => p.id),
@@ -252,13 +257,27 @@ export function MoreScreen() {
 
         <button
           type="button"
-          onClick={logout}
+          onClick={() => setLogoutConfirmOpen(true)}
           className="m-press flex w-full items-center justify-center gap-2 rounded-[18px] border border-brand-line/60 bg-white py-3.5 text-[15px] font-semibold text-[#E35D4A] shadow-[0_2px_12px_rgba(8,35,63,0.06)] active:scale-[0.99]"
         >
           <IconSignOut className="text-[#E35D4A]" />
           Sign out
         </button>
       </main>
+
+      <LogoutConfirmSheet
+        open={logoutConfirmOpen}
+        loading={logoutLoading}
+        onCancel={() => setLogoutConfirmOpen(false)}
+        onConfirm={async () => {
+          const result = await logout();
+          setLogoutConfirmOpen(false);
+          const params = new URLSearchParams({ signedOut: "1" });
+          if (result.offline) params.set("offline", "1");
+          if (result.remotePending) params.set("remotePending", "1");
+          router.replace(`${MOBILE_AUTH_ROUTES.login}?${params.toString()}`);
+        }}
+      />
     </div>
   );
 }

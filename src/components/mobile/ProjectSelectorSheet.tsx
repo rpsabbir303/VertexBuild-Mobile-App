@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { MOCK_PROJECTS, projectSubtitle } from "@/lib/mobile/mockData";
+import { projectAvailableOffline } from "@/lib/mobile/offlineAuth";
 import { useMobileApp } from "@/lib/mobile/MobileAppContext";
 import type { MockProject } from "@/lib/mobile/types";
 import { IconCheck, IconClose, IconSearch } from "./icons";
@@ -26,6 +27,7 @@ export function ProjectSelectorSheet() {
     closeProjectSelector,
     currentProject,
     setCurrentProjectId,
+    isOffline,
   } = useMobileApp();
 
   const titleId = useId();
@@ -154,16 +156,21 @@ export function ProjectSelectorSheet() {
           ) : (
             filtered.map((project) => {
               const selected = project.id === currentProject.id;
+              const offlineOk = !isOffline || projectAvailableOffline(project.id);
               return (
                 <li key={project.id} className="mb-1.5">
                   <button
                     type="button"
-                    onClick={() => setCurrentProjectId(project.id)}
+                    disabled={!offlineOk}
+                    onClick={() => {
+                      if (!offlineOk) return;
+                      setCurrentProjectId(project.id);
+                    }}
                     aria-current={selected ? "true" : undefined}
                     aria-label={`${project.name}, ${projectSubtitle(project)}${
                       selected ? ", currently selected" : ""
                     }`}
-                    className={`m-press flex w-full items-center gap-3 rounded-mobile-lg px-3.5 py-3.5 text-left transition-colors ${
+                    className={`m-press flex w-full items-center gap-3 rounded-mobile-lg px-3.5 py-3.5 text-left transition-colors disabled:opacity-50 ${
                       selected
                         ? "bg-brand-softblue ring-1 ring-brand-blue/20"
                         : "bg-transparent active:bg-brand-soft"
@@ -178,7 +185,11 @@ export function ProjectSelectorSheet() {
                         {project.name}
                       </p>
                       <p className="mt-0.5 truncate text-[12px] leading-snug text-brand-muted">
-                        {projectSubtitle(project)}
+                        {isOffline
+                          ? offlineOk
+                            ? "Available offline"
+                            : "Unavailable offline"
+                          : projectSubtitle(project)}
                       </p>
                     </div>
                     {selected ? (

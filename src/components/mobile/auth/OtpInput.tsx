@@ -97,7 +97,7 @@ export function OtpInput({
   }
 
   return (
-    <div className="flex justify-between gap-2" role="group" aria-label="6-digit verification code">
+    <div className="flex justify-between gap-1.5 sm:gap-2" role="group" aria-label="6-digit verification code">
       {cells.map((digit, index) => (
         <input
           key={index}
@@ -117,7 +117,7 @@ export function OtpInput({
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
           onFocus={(e) => e.currentTarget.select()}
-          className={`h-12 w-11 rounded-mobile border bg-white text-center text-[20px] font-semibold tabular-nums text-brand-navy outline-none transition ${
+          className={`h-[52px] min-w-0 flex-1 max-w-[48px] rounded-mobile border bg-white text-center text-[20px] font-semibold tabular-nums text-brand-navy outline-none transition ${
             hasError
               ? "border-status-danger focus:border-status-danger"
               : digit

@@ -29,7 +29,7 @@ export function AuthField({
           id={id}
           aria-invalid={invalid}
           aria-describedby={describedBy}
-          className={`w-full appearance-none rounded-mobile border bg-white py-3 pl-3.5 text-[15px] text-brand-navy outline-none transition placeholder:text-brand-mist focus:bg-white ${
+          className={`w-full appearance-none rounded-mobile border bg-white py-3 pl-3.5 text-[15px] text-brand-navy outline-none transition placeholder:text-brand-mist focus:bg-white disabled:opacity-60 ${
             trailing ? "pr-12" : "pr-3.5"
           } ${
             invalid

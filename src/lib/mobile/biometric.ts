@@ -13,7 +13,13 @@ export type BiometricPreference = {
   credentialId: string;
 };
 
-export type BiometricUnlockError = "unavailable" | "cancelled" | "failed" | "expired" | "no_vault";
+export type BiometricUnlockError =
+  | "unavailable"
+  | "cancelled"
+  | "failed"
+  | "expired"
+  | "no_vault"
+  | "invalidated";
 
 function bufferToBase64Url(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -166,7 +172,9 @@ export async function registerBiometricCredential(
 
 export async function verifyBiometricCredential(
   credentialId: string,
-): Promise<{ ok: true } | { ok: false; code: "unavailable" | "cancelled" | "failed" }> {
+): Promise<
+  { ok: true } | { ok: false; code: "unavailable" | "cancelled" | "failed" | "invalidated" }
+> {
   const available = await isBiometricAvailable();
   if (!available) return { ok: false, code: "unavailable" };
 
@@ -192,8 +200,40 @@ export async function verifyBiometricCredential(
     if (name === "NotAllowedError" || name === "AbortError") {
       return { ok: false, code: "cancelled" };
     }
+    if (name === "NotFoundError" || name === "InvalidStateError" || name === "SecurityError") {
+      return { ok: false, code: "invalidated" };
+    }
     return { ok: false, code: "failed" };
   }
+}
+
+export function invalidateBiometricEnrollment() {
+  writeBiometricPreference(null);
+  writeBiometricVault(null);
+  setBiometricEnableDismissed(false);
+}
+
+export function getBiometricUnlockErrorMessage(code: BiometricUnlockError): string {
+  switch (code) {
+    case "cancelled":
+      return "Biometric unlock was cancelled.";
+    case "unavailable":
+      return "Biometric unlock is unavailable on this device.";
+    case "expired":
+      return "Your protected session expired. Sign in with your password.";
+    case "invalidated":
+      return "Biometric unlock is no longer available on this device. Sign in with your password.";
+    case "no_vault":
+      return "No protected session is available. Sign in with your password.";
+    case "failed":
+      return "Biometric unlock failed. Try again or use your password.";
+    default:
+      return "Biometric unlock failed. Try again or use your password.";
+  }
+}
+
+export function shouldProtectSessionWithBiometric(): boolean {
+  return Boolean(readBiometricPreference()?.enabled);
 }
 
 export function shouldOfferBiometricUnlock(): boolean {

@@ -11,12 +11,12 @@ export function AuthAccountSync() {
   const { applyAuthAccount } = useMobileApp();
 
   useEffect(() => {
-    if (authStatus !== "authenticated" || !session?.email) return;
+    if (authStatus !== "authenticated" || !session?.email || session.mfaVerified === false) return;
     const account = PROVISIONED_ACCOUNTS.find(
       (a) => a.email.toLowerCase() === session.email.toLowerCase(),
     );
-    if (account) applyAuthAccount(account);
-  }, [authStatus, session?.email, applyAuthAccount]);
+    if (account) applyAuthAccount({ ...account, role: session.role });
+  }, [authStatus, session?.email, session?.role, applyAuthAccount]);
 
   return null;
 }

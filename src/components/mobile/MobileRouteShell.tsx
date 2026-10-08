@@ -3,28 +3,52 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { isMobileAuthPath, MOBILE_AUTH_ROUTES } from "@/lib/mobile/authRoutes";
+import { sessionEndRoute } from "@/lib/mobile/sessionSecurity";
 import { useMobileAuth } from "@/lib/mobile/MobileAuthContext";
 import { BiometricEnablePrompt } from "./auth/BiometricEnablePrompt";
+import { OfflineAccessBanner } from "./auth/OfflineAccessBanner";
+import { OfflineAccessExpiredScreen } from "./screens/OfflineAccessExpiredScreen";
+import { OfflineResumeScreen } from "./screens/OfflineResumeScreen";
+import { BiometricUnlockScreen } from "./screens/BiometricUnlockScreen";
+import { isDeviceOnline } from "@/lib/mobile/offlineAuth";
 import { MobileShell } from "./MobileShell";
 
 export function MobileRouteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { authStatus } = useMobileAuth();
+  const {
+    authStatus,
+    sessionEndReason,
+    permissionAccessBlocked,
+    offlineEligibilityState,
+    offlineWorkspaceBlocked,
+  } = useMobileAuth();
 
   const authRoute = isMobileAuthPath(pathname);
+  const mfaRoute = pathname.startsWith(MOBILE_AUTH_ROUTES.mfa);
   const authEntryRoute =
     pathname === MOBILE_AUTH_ROUTES.login ||
     pathname === MOBILE_AUTH_ROUTES.forgotPassword;
-  const passwordLoginRoute = pathname === MOBILE_AUTH_ROUTES.login;
+  const sessionPermissionRoute = pathname === MOBILE_AUTH_ROUTES.sessionPermission;
 
   useEffect(() => {
     if (authStatus === "loading") return;
 
-    if (authStatus === "biometric_locked") {
-      if (!passwordLoginRoute && pathname !== MOBILE_AUTH_ROUTES.biometric) {
-        router.replace(MOBILE_AUTH_ROUTES.biometric);
+    if (authStatus === "unauthenticated" && sessionEndReason && !authRoute) {
+      const target = sessionEndRoute(sessionEndReason);
+      if (pathname !== target) {
+        router.replace(target);
       }
+      return;
+    }
+
+    if (authStatus === "authenticated" && permissionAccessBlocked && !sessionPermissionRoute) {
+      router.replace(MOBILE_AUTH_ROUTES.sessionPermission);
+      return;
+    }
+
+    if (authStatus === "mfa_pending" && !mfaRoute) {
+      router.replace(MOBILE_AUTH_ROUTES.mfa);
       return;
     }
 
@@ -33,12 +57,23 @@ export function MobileRouteShell({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (authStatus === "authenticated") {
+    if (authStatus === "authenticated" && !permissionAccessBlocked) {
       if (authEntryRoute || pathname === MOBILE_AUTH_ROUTES.biometric) {
         router.replace(MOBILE_AUTH_ROUTES.appHome);
       }
     }
-  }, [authStatus, authRoute, authEntryRoute, passwordLoginRoute, pathname, router]);
+  }, [
+    authStatus,
+    authRoute,
+    authEntryRoute,
+    mfaRoute,
+    pathname,
+    permissionAccessBlocked,
+    router,
+    sessionEndReason,
+    sessionPermissionRoute,
+    offlineWorkspaceBlocked,
+  ]);
 
   if (authStatus === "loading") {
     return (
@@ -54,7 +89,48 @@ export function MobileRouteShell({ children }: { children: ReactNode }) {
     );
   }
 
-  if (authStatus === "biometric_locked" && pathname !== MOBILE_AUTH_ROUTES.biometric && !passwordLoginRoute) {
+  if (authStatus === "authenticated" && offlineWorkspaceBlocked && !authRoute) {
+    return (
+      <MobileShell hideBottomNav>
+        {offlineEligibilityState === "expired" ? (
+          <OfflineAccessExpiredScreen />
+        ) : (
+          <OfflineResumeScreen />
+        )}
+      </MobileShell>
+    );
+  }
+
+  if (authStatus === "offline_resume" && !authRoute) {
+    return (
+      <MobileShell hideBottomNav>
+        <OfflineResumeScreen />
+      </MobileShell>
+    );
+  }
+
+  if (
+    authStatus === "unauthenticated" &&
+    offlineEligibilityState === "expired" &&
+    !isDeviceOnline() &&
+    !authRoute
+  ) {
+    return (
+      <MobileShell hideBottomNav>
+        <OfflineAccessExpiredScreen />
+      </MobileShell>
+    );
+  }
+
+  if (authStatus === "biometric_locked" && !authRoute) {
+    return (
+      <MobileShell hideBottomNav>
+        <BiometricUnlockScreen />
+      </MobileShell>
+    );
+  }
+
+  if (authStatus === "mfa_pending" && !mfaRoute) {
     return (
       <MobileShell hideBottomNav>
         <div className="flex min-h-[40vh] items-center justify-center" aria-hidden="true" />
@@ -80,6 +156,7 @@ export function MobileRouteShell({ children }: { children: ReactNode }) {
 
   return (
     <MobileShell hideBottomNav={authRoute}>
+      <OfflineAccessBanner />
       {children}
       <BiometricEnablePrompt />
     </MobileShell>

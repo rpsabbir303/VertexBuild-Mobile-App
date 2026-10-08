@@ -11,9 +11,10 @@ import {
 import { MOBILE_AUTH_ROUTES } from "@/lib/mobile/authRoutes";
 import { useMobileAuth } from "@/lib/mobile/MobileAuthContext";
 import { AuthField } from "../auth/AuthField";
+import { AuthFormAlert } from "../auth/AuthFormAlert";
 import { AuthShell } from "../auth/AuthShell";
 import { ResetPasswordRequirements } from "../auth/ResetPasswordRequirements";
-import { IconBack, IconCheck, IconEye, IconEyeOff } from "../icons";
+import { IconBack, IconEye, IconEyeOff } from "../icons";
 
 export function ResetPasswordScreen() {
   const router = useRouter();
@@ -29,13 +30,9 @@ export function ResetPasswordScreen() {
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState(false);
-
   useEffect(() => {
-    if (!hasActiveResetSession && !resetSuccess) {
-      setSessionExpired(true);
-    }
-  }, [hasActiveResetSession, resetSuccess]);
+    setSessionExpired(!hasActiveResetSession);
+  }, [hasActiveResetSession]);
 
   const canSubmit = useMemo(() => {
     return (
@@ -69,7 +66,7 @@ export function ResetPasswordScreen() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (sessionExpired || resetSuccess || loading) return;
+    if (sessionExpired || loading) return;
 
     if (!validateFields()) return;
 
@@ -100,9 +97,7 @@ export function ResetPasswordScreen() {
       return;
     }
 
-    setPassword("");
-    setConfirm("");
-    setResetSuccess(true);
+    router.replace(MOBILE_AUTH_ROUTES.passwordUpdated);
   }
 
   function startAgain() {
@@ -113,27 +108,6 @@ export function ResetPasswordScreen() {
   const backHref = hasActiveResetSession
     ? MOBILE_AUTH_ROUTES.verifyOtp
     : MOBILE_AUTH_ROUTES.forgotPassword;
-
-  if (resetSuccess) {
-    return (
-      <AuthShell>
-        <div className="flex flex-1 flex-col justify-center py-8">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-            <IconCheck strokeWidth={2.5} className="h-7 w-7" />
-          </div>
-          <h1 className="mt-6 text-center text-[24px] font-bold tracking-[-0.03em] text-brand-navy">
-            Password reset successfully.
-          </h1>
-          <Link
-            href={MOBILE_AUTH_ROUTES.login}
-            className="m-press mt-8 block w-full rounded-mobile bg-brand-blue py-3.5 text-center text-[16px] font-semibold text-white shadow-soft"
-          >
-            Back to login
-          </Link>
-        </div>
-      </AuthShell>
-    );
-  }
 
   return (
     <AuthShell>
@@ -156,30 +130,22 @@ export function ResetPasswordScreen() {
         </p>
 
         {sessionExpired ? (
-          <div
-            className="mt-4 rounded-mobile border border-amber-200 bg-amber-50 px-3.5 py-3 text-[13px] font-medium text-amber-900"
-            role="alert"
-          >
-            {getResetPasswordErrorMessage("session_expired")}
-            <button
-              type="button"
-              onClick={startAgain}
-              className="m-press mt-3 block font-semibold text-brand-blue"
-            >
-              Start again
-            </button>
+          <div className="mt-4">
+            <AuthFormAlert variant="warning">
+              {getResetPasswordErrorMessage("session_expired")}
+              <button
+                type="button"
+                onClick={startAgain}
+                className="m-press mt-3 block font-semibold text-brand-blue"
+              >
+                Start again
+              </button>
+            </AuthFormAlert>
           </div>
         ) : null}
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
-          {formError ? (
-            <div
-              className="rounded-mobile border border-red-200 bg-red-50 px-3.5 py-3 text-[13px] font-medium text-status-danger"
-              role="alert"
-            >
-              {formError}
-            </div>
-          ) : null}
+          {formError ? <AuthFormAlert>{formError}</AuthFormAlert> : null}
 
           <AuthField
             id="reset-password"
@@ -237,13 +203,11 @@ export function ResetPasswordScreen() {
 
           <button
             type="submit"
-            disabled={loading || sessionExpired}
-            aria-disabled={!canSubmit || loading || sessionExpired}
-            className={`m-press w-full rounded-mobile bg-brand-blue py-3.5 text-[16px] font-semibold text-white shadow-soft disabled:opacity-60 ${
-              !canSubmit && !loading && !sessionExpired ? "opacity-60" : ""
-            }`}
+            disabled={loading || sessionExpired || !canSubmit}
+            aria-busy={loading}
+            className="m-press w-full rounded-mobile bg-brand-blue py-3.5 text-[16px] font-semibold text-white shadow-soft disabled:opacity-60"
           >
-            {loading ? "Resetting password..." : "Reset password"}
+            {loading ? "Resetting password…" : "Reset password"}
           </button>
         </form>
       </div>
