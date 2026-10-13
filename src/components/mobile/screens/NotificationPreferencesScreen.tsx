@@ -36,7 +36,7 @@ export function NotificationPreferencesScreen() {
         </Link>
         <div className="min-w-0">
           <h1 className="text-[17px] font-semibold text-brand-navy">Notification preferences</h1>
-          <p className="text-[12px] text-brand-muted">Local prototype settings only</p>
+          <p className="text-[12px] text-brand-muted">Saved on this device</p>
         </div>
       </header>
 

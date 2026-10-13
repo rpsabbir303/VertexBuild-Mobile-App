@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { isMobileAuthPath, MOBILE_AUTH_ROUTES } from "@/lib/mobile/authRoutes";
-import { sessionEndRoute } from "@/lib/mobile/sessionSecurity";
+import { isSessionSecurityEnabled, sessionEndRoute } from "@/lib/mobile/sessionSecurity";
 import { useMobileAuth } from "@/lib/mobile/MobileAuthContext";
 import { BiometricEnablePrompt } from "./auth/BiometricEnablePrompt";
 import { OfflineAccessBanner } from "./auth/OfflineAccessBanner";
@@ -34,7 +34,12 @@ export function MobileRouteShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (authStatus === "loading") return;
 
-    if (authStatus === "unauthenticated" && sessionEndReason && !authRoute) {
+    if (
+      isSessionSecurityEnabled() &&
+      authStatus === "unauthenticated" &&
+      sessionEndReason &&
+      !authRoute
+    ) {
       const target = sessionEndRoute(sessionEndReason);
       if (pathname !== target) {
         router.replace(target);

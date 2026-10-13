@@ -87,6 +87,7 @@ import {
   mockRemoteLogout,
   queuePendingRemoteLogout,
   readSessionEndReason,
+  isSessionSecurityEnabled,
   registerMockServerSession,
   writeSessionEndReason,
   type SessionEndReason,
@@ -342,7 +343,12 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     setPasswordRecovery(readPasswordRecovery());
     setInvitationActivation(readInvitationActivation());
     setMfaServerState(readMfaServerState());
-    setSessionEndReason(readSessionEndReason());
+    if (!isSessionSecurityEnabled()) {
+      writeSessionEndReason(null);
+      setSessionEndReason(null);
+    } else {
+      setSessionEndReason(readSessionEndReason());
+    }
     const eligibilityState = evaluateOfflineEligibility();
     setOfflineEligibilityState(eligibilityState);
     const online = isDeviceOnline();
@@ -532,13 +538,18 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
       const active = readStoredSession();
       if (!active || active.mfaVerified === false) return;
 
-      if (!isDeviceOnline()) {
-      setAccessMode("offline_local");
-      return;
-    }
+      if (!isSessionSecurityEnabled()) {
+        if (isDeviceOnline()) setAccessMode("online");
+        return;
+      }
 
-    setAccessMode("revalidating");
-    const result = await mockRevalidateSession(active);
+      if (!isDeviceOnline()) {
+        setAccessMode("offline_local");
+        return;
+      }
+
+      setAccessMode("revalidating");
+      const result = await mockRevalidateSession(active);
       if (!result.ok) {
         if (result.code === "network") {
           setAccessMode("offline_local");
@@ -722,25 +733,28 @@ export function MobileAuthProvider({ children }: { children: ReactNode }) {
     setSession(normalized);
     setAuthStatus("authenticated");
 
-    const revalidated = await mockRevalidateSession(normalized);
-    if (!revalidated.ok && revalidated.code !== "network") {
-      const reason =
-        revalidated.code === "invalid" ? ("revoked" as const) : revalidated.code;
-      terminateSessionForReason(reason);
-      return { ok: false as const, code: "expired" as const };
-    }
-    if (revalidated.ok) {
-      writeStoredSession(revalidated.session);
-      setSession(revalidated.session);
-      if (readBiometricPreference()?.enabled) {
-        writeBiometricVault(revalidated.session);
+    if (isSessionSecurityEnabled()) {
+      const revalidated = await mockRevalidateSession(normalized);
+      if (!revalidated.ok && revalidated.code !== "network") {
+        const reason =
+          revalidated.code === "invalid" ? ("revoked" as const) : revalidated.code;
+        terminateSessionForReason(reason);
+        return { ok: false as const, code: "expired" as const };
       }
-    }
-
-    if (revalidated.ok) {
-      setAccessMode(isDeviceOnline() ? "online" : "offline_local");
+      if (revalidated.ok) {
+        writeStoredSession(revalidated.session);
+        setSession(revalidated.session);
+        if (readBiometricPreference()?.enabled) {
+          writeBiometricVault(revalidated.session);
+        }
+      }
+      if (revalidated.ok) {
+        setAccessMode(isDeviceOnline() ? "online" : "offline_local");
+      } else {
+        setAccessMode("offline_local");
+      }
     } else {
-      setAccessMode("offline_local");
+      setAccessMode(isDeviceOnline() ? "online" : "offline_local");
     }
 
     return { ok: true as const };

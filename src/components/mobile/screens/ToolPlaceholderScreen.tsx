@@ -50,7 +50,7 @@ export function ToolPlaceholderScreen({ slug }: { slug: string }) {
           </p>
           <p className="mt-2 text-[15px] leading-relaxed text-brand-navy/90">
             {title} for <span className="font-semibold">{currentProject.name}</span> would load
-            here. Mock role: {user.roleLabel}.
+            here. Role: {user.roleLabel}.
           </p>
           {moduleHints[slug] ? (
             <p className="mt-3 text-[13px] text-brand-muted">{moduleHints[slug]}</p>

@@ -4,6 +4,7 @@ import { canAccessToolSlug } from "@/lib/mobile/roleConfig";
 import { useMobileApp } from "@/lib/mobile/MobileAppContext";
 import { PermissionDeniedScreen } from "./PermissionDeniedScreen";
 import { ProfileScreen } from "./ProfileScreen";
+import { SafetyHomeScreen } from "./SafetyHomeScreen";
 import { ToolPlaceholderScreen } from "./ToolPlaceholderScreen";
 
 export function MobileToolScreen({ slug }: { slug: string }) {
@@ -22,6 +23,10 @@ export function MobileToolScreen({ slug }: { slug: string }) {
 
   if (slug === "profile") {
     return <ProfileScreen />;
+  }
+
+  if (slug === "safety") {
+    return <SafetyHomeScreen />;
   }
 
   return <ToolPlaceholderScreen slug={slug} />;

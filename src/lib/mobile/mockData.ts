@@ -153,18 +153,43 @@ export function greetingForHour(hour: number): string {
   return "Good evening";
 }
 
+/** Demo time-entry rows for mobile timesheet preview — not payroll API data. */
 export const MOCK_TIME_ENTRIES = [
   {
     id: "time-1",
+    projectId: "proj-lakeshore",
+    projectName: "Lakeshore Outpatient Pavilion",
     dayLabel: "Monday",
+    workDateLabel: "Mon, Mar 9",
     rangeLabel: "8:00 AM – 4:30 PM",
     hoursLabel: "8h 30m",
+    durationMinutes: 510,
+    complete: true,
+    crewLabel: "Crew A — General",
   },
   {
     id: "time-2",
+    projectId: "proj-lakeshore",
+    projectName: "Lakeshore Outpatient Pavilion",
     dayLabel: "Sunday",
+    workDateLabel: "Sun, Mar 8",
     rangeLabel: "7:55 AM – 4:10 PM",
     hoursLabel: "8h 15m",
+    durationMinutes: 495,
+    complete: true,
+    crewLabel: "Crew B — Steel",
   },
-];
+  {
+    id: "time-3",
+    projectId: "proj-westbridge",
+    projectName: "Westbridge Distribution Hall",
+    dayLabel: "Friday",
+    workDateLabel: "Fri, Mar 6",
+    rangeLabel: "6:30 AM – 3:00 PM",
+    hoursLabel: "8h 30m",
+    durationMinutes: 510,
+    complete: true,
+    crewLabel: "Earthwork crew",
+  },
+] as const;
 

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { HTMLInputTypeAttribute, ReactNode } from "react";
 import { photoThumbSrc, type FieldPhoto } from "@/lib/mobile/photoEvidence";
 import { fieldInput, fieldLabel, recordGroup } from "@/lib/mobile/mobileUi";
 import { IconPlus, IconTrash } from "../icons";
@@ -11,6 +11,9 @@ export function FieldText({
   placeholder,
   disabled,
   multiline,
+  required,
+  error,
+  type = "text",
 }: {
   id: string;
   label: string;
@@ -19,31 +22,52 @@ export function FieldText({
   placeholder?: string;
   disabled?: boolean;
   multiline?: boolean;
+  required?: boolean;
+  error?: string | null;
+  type?: HTMLInputTypeAttribute;
 }) {
+  const invalid = Boolean(error);
+  const inputClass = `${fieldInput} scroll-mb-32 text-base leading-relaxed ${
+    invalid ? "border-status-danger focus:border-status-danger" : ""
+  } ${multiline ? "resize-none" : ""}`;
+
   return (
-    <label className="block" htmlFor={id}>
-      <span className={fieldLabel}>{label}</span>
-      {multiline ? (
-        <textarea
-          id={id}
-          value={value}
-          disabled={disabled}
-          rows={3}
-          placeholder={placeholder}
-          onChange={(event) => onChange(event.target.value)}
-          className={`${fieldInput} scroll-mb-32 resize-none text-base leading-relaxed`}
-        />
-      ) : (
-        <input
-          id={id}
-          value={value}
-          disabled={disabled}
-          placeholder={placeholder}
-          onChange={(event) => onChange(event.target.value)}
-          className={`${fieldInput} scroll-mb-32 text-base`}
-        />
-      )}
-    </label>
+    <div className="block">
+      <label htmlFor={id}>
+        <span className={fieldLabel}>
+          {label}
+          {required ? <span className="text-status-danger"> *</span> : null}
+        </span>
+        {multiline ? (
+          <textarea
+            id={id}
+            value={value}
+            disabled={disabled}
+            rows={3}
+            placeholder={placeholder}
+            aria-invalid={invalid}
+            onChange={(event) => onChange(event.target.value)}
+            className={inputClass}
+          />
+        ) : (
+          <input
+            id={id}
+            type={type}
+            value={value}
+            disabled={disabled}
+            placeholder={placeholder}
+            aria-invalid={invalid}
+            onChange={(event) => onChange(event.target.value)}
+            className={inputClass}
+          />
+        )}
+      </label>
+      {error ? (
+        <p className="mt-1 text-[13px] font-medium text-status-danger" role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

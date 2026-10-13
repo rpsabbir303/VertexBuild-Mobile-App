@@ -3,6 +3,17 @@ import type { StoredAuthSession } from "./auth";
 
 const AUTH_DELAY_MS = 650;
 
+/**
+ * Prototype preview: mock session revalidation (revoked/expired/suspended) is off so
+ * local demo sessions are not kicked out when mock server storage is out of sync.
+ * Set to `true` when testing session lifecycle flows.
+ */
+export const SESSION_SECURITY_PROTOTYPE_ENABLED = false;
+
+export function isSessionSecurityEnabled(): boolean {
+  return SESSION_SECURITY_PROTOTYPE_ENABLED;
+}
+
 export const MOCK_SERVER_SESSIONS_KEY = "vertex-cms-mock-server-sessions";
 export const PENDING_REMOTE_LOGOUT_KEY = "vertex-cms-pending-remote-logout";
 export const SESSION_RETURN_PATH_KEY = "vertex-cms-session-return-path";

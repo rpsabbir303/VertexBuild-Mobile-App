@@ -462,6 +462,44 @@ export function IconMenuSafety({ className, strokeWidth = 1.75 }: IconProps) {
   );
 }
 
+export function IconSafetyIncident({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses(MD, className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 9v4M12 17h.01" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function IconSafetyInspection({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses(MD, className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
+      <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" strokeWidth={strokeWidth} />
+      <path d="m9 14 2 2 4-4" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function IconSafetyToolbox({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses(MD, className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 10h16v10H4z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinejoin="round" />
+      <path d="M8 10V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
+      <path d="M12 14v2" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconSafetyJha({ className, strokeWidth = 1.75 }: IconProps) {
+  return (
+    <svg className={iconClasses(MD, className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="currentColor" strokeWidth={strokeWidth} strokeLinejoin="round" />
+      <path d="M14 2v6h6M8 13h8M8 17h5" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function IconMenuDrawings({ className, strokeWidth = 1.75 }: IconProps) {
   return (
     <svg className={iconClasses(MD, className)} width={20} height={20} viewBox="0 0 24 24" fill="none" aria-hidden="true">
